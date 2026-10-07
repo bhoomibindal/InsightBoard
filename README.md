@@ -1,8 +1,16 @@
 # InsightBoard
 
+## 🚀 Live Demo
+
+**Live Dashboard:** https://insightboard-frontend-gmtt.onrender.com
+
+**Backend API:** https://insightboard-api-lcdm.onrender.com
+
 InsightBoard is a full-stack business analytics dashboard built to visualize sales performance, revenue trends, category distribution, and recent customer orders.
 
 The project demonstrates how a modern React frontend can consume REST APIs backed by Node.js, Express, MongoDB, and Mongoose to provide interactive, data-driven business insights.
+
+
 
 ## Features
 
