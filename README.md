@@ -48,6 +48,22 @@ The project demonstrates how a modern React frontend can consume REST APIs backe
 - Mongoose
 - MongoDB aggregation pipelines
 
+## Dashboard
+
+InsightBoard provides a centralized view of business performance through interactive analytics.
+
+### Dashboard Overview
+
+![InsightBoard Dashboard](screenshots/dashboard-overview.png)
+
+### Analytics & Orders
+
+![InsightBoard Analytics](screenshots/analytics-orders.png)
+
+### Responsive Design
+
+![InsightBoard Mobile Dashboard](screenshots/mobile-responsive.png)
+
 ## Architecture
 
 ```text
@@ -67,18 +83,3 @@ Aggregation & Filtering
       ▼
 Dashboard Analytics
 
-## Dashboard
-
-InsightBoard provides a centralized view of business performance through interactive analytics.
-
-### Dashboard Overview
-
-![InsightBoard Dashboard](screenshots/dashboard-overview.png)
-
-### Analytics & Orders
-
-![InsightBoard Analytics](screenshots/analytics-orders.png)
-
-### Responsive Design
-
-![InsightBoard Mobile Dashboard](screenshots/mobile-responsive.png)
