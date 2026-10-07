@@ -25,48 +25,125 @@ app.get("/api/stats", async (req, res) => {
 
     const filter = {};
 
-    if (startDate || endDate) {
-      filter.createdAt = {};
+    if (startDate && endDate) {
+      const currentStart = new Date(startDate);
+      const currentEnd = new Date(endDate);
+      currentEnd.setHours(23, 59, 59, 999);
 
-      if (startDate) {
-        filter.createdAt.$gte = new Date(startDate);
-      }
+      filter.createdAt = {
+        $gte: currentStart,
+        $lte: currentEnd,
+      };
 
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        filter.createdAt.$lte = end;
-      }
+      const periodLength =
+        currentEnd.getTime() - currentStart.getTime() + 1;
+
+      const previousEnd = new Date(currentStart.getTime() - 1);
+      const previousStart = new Date(
+        previousEnd.getTime() - periodLength + 1
+      );
+
+      const [currentOrders, previousOrders] = await Promise.all([
+        Order.find(filter),
+        Order.find({
+          createdAt: {
+            $gte: previousStart,
+            $lte: previousEnd,
+          },
+        }),
+      ]);
+
+      const calculateStats = (orders) => {
+        const totalRevenue = orders.reduce(
+          (sum, order) => sum + order.amount,
+          0
+        );
+
+        const totalOrders = orders.length;
+
+        const uniqueCustomers = new Set(
+          orders.map((order) => order.customer)
+        );
+
+        const totalCustomers = uniqueCustomers.size;
+
+        const averageOrderValue =
+          totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+        return {
+          revenue: totalRevenue,
+          orders: totalOrders,
+          customers: totalCustomers,
+          averageOrderValue,
+        };
+      };
+
+      const currentStats = calculateStats(currentOrders);
+      const previousStats = calculateStats(previousOrders);
+
+      const calculateChange = (current, previous) => {
+        if (previous === 0) {
+          return current === 0 ? 0 : 100;
+        }
+
+        return ((current - previous) / previous) * 100;
+      };
+
+      return res.json({
+        ...currentStats,
+        changes: {
+          revenue: calculateChange(
+            currentStats.revenue,
+            previousStats.revenue
+          ),
+          orders: calculateChange(
+            currentStats.orders,
+            previousStats.orders
+          ),
+          customers: calculateChange(
+            currentStats.customers,
+            previousStats.customers
+          ),
+          averageOrderValue: calculateChange(
+            currentStats.averageOrderValue,
+            previousStats.averageOrderValue
+          ),
+        },
+        previousPeriod: previousStats,
+      });
     }
 
-    const orders = await Order.find(filter);
+    const orders = await Order.find();
 
-    const totalRevenue = orders.reduce(
-      (total, order) => total + order.amount,
-      0
-    );
-
-    const totalOrders = orders.length;
-
-    const averageOrderValue =
-      totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
-    const uniqueCustomers = new Set(
-      orders.map((order) => order.customer)
-    );
+    const stats = {
+      revenue: orders.reduce((sum, order) => sum + order.amount, 0),
+      orders: orders.length,
+      customers: new Set(orders.map((order) => order.customer)).size,
+      averageOrderValue:
+        orders.length > 0
+          ? orders.reduce((sum, order) => sum + order.amount, 0) /
+            orders.length
+          : 0,
+    };
 
     res.json({
-      revenue: totalRevenue,
-      orders: totalOrders,
-      customers: uniqueCustomers.size,
-      averageOrderValue: Number(averageOrderValue.toFixed(2)),
+      ...stats,
+      changes: {
+        revenue: 0,
+        orders: 0,
+        customers: 0,
+        averageOrderValue: 0,
+      },
+      previousPeriod: {
+        revenue: 0,
+        orders: 0,
+        customers: 0,
+        averageOrderValue: 0,
+      },
     });
   } catch (error) {
-    console.error("Error calculating dashboard stats:", error.message);
-
-    res.status(500).json({
-      message: "Failed to calculate dashboard statistics",
-    });
+    console.error("Stats error:", error.message);
+    res.status(500).json({ message: "Failed to fetch stats" });
   }
 });
 

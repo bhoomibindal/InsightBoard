@@ -110,32 +110,34 @@ function App() {
   {!statsLoading && !statsError && stats && (
     <>
       <StatCard
-        title="Total Revenue"
-        value={`₹${stats.revenue.toLocaleString("en-IN")}`}
-        change="+12.5% from last month"
-        icon={IndianRupee}
-      />
+  title="Total Revenue"
+  value={`₹${stats.revenue.toLocaleString("en-IN")}`}
+  change={stats.changes.revenue}
+  icon={IndianRupee}
+/>
 
-      <StatCard
-        title="Total Orders"
-        value={stats.orders.toLocaleString("en-IN")}
-        change="+8.2% from last month"
-        icon={ShoppingCart}
-      />
+<StatCard
+  title="Total Orders"
+  value={stats.orders}
+  change={stats.changes.orders}
+  icon={ShoppingCart}
+/>
 
-      <StatCard
-        title="Total Customers"
-        value={stats.customers.toLocaleString("en-IN")}
-        change="+5.7% from last month"
-        icon={Users}
-      />
+<StatCard
+  title="Total Customers"
+  value={stats.customers}
+  change={stats.changes.customers}
+  icon={Users}
+/>
 
-      <StatCard
-        title="Average Order Value"
-        value={`₹${stats.averageOrderValue.toLocaleString("en-IN")}`}
-        change="+3.4% from last month"
-        icon={TrendingUp}
-      />
+<StatCard
+  title="Average Order Value"
+  value={`₹${stats.averageOrderValue.toLocaleString("en-IN", {
+    maximumFractionDigits: 0,
+  })}`}
+  change={stats.changes.averageOrderValue}
+  icon={TrendingUp}
+/>
     </>
   )}
 </div>
